@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stylo Audio Professional</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #1a1a1a;
+            --bg-panel: #242424;
+            --bg-input: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-cyan: #00d9ff;
+            --accent-blue: #0066ff;
+            --danger: #ff3333;
+            --success: #33ff33;
+            --border: #404040;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(180deg, var(--bg-panel) 0%, var(--bg-dark) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+        }
+
+        .project-name {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        button:active {
+            opacity: 0.7;
+        }
+
+        button.danger {
+            color: var(--danger);
+        }
+
+        button.danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* MAIN LAYOUT */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* TIMELINE/WAVEFORM PANEL */
+        .central-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            background: var(--bg-dark);
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .timeline-display {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark);
+            border: 1px dashed var(--border);
+            margin: 16px;
+            border-radius: 4px;
+            min-height: 200px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            position: relative;
+        }
+
+        .waveform-placeholder {
+            text-align: center;
+        }
+
+        .waveform-placeholder p {
+            margin-bottom: 12px;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* INSPECTOR PANEL */
+        .inspector-panel {
+            width: 280px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inspector-section {
+            border-bottom: 1px solid var(--border);
+            padding: 12px;
+        }
+
+        .inspector-section-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .param-group {
+            margin-bottom: 12px;
+        }
+
+        .param-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .param-value {
+            color: var(--accent-cyan);
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--bg-input);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--accent-blue);
+            box-shadow: 0 0 8px var(--accent-cyan);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* TRANSPORT & METERS */
+        .transport-panel {
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-panel) 100%);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .transport-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: var(--accent-cyan);
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        .meters-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .meter {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 9px;
+        }
+
+        .meter-label {
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .meter-value {
+            color: var(--accent-cyan);
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .meter-bar {
+            width: 40px;
+            height: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .meter-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--accent-cyan), var(--danger));
+            transition: width 0.05s;
+        }
+
+        /* HIDDEN FILE INPUT */
+        input[type="file"] {
+            display: none;
+        }
+
+        /* STATUS BAR */
+        .status-bar {
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            padding: 8px 16px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-message {
+            flex: 1;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            margin-right: 6px;
+            display: inline-block;
+        }
+
+        .status-indicator.active {
+            background: var(--success);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-panel);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-cyan);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .inspector-panel {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .inspector-panel {
+                width: 100%;
+                height: 200px;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">◆ STYLO</div>
+                <div class="project-name" id="projectName">Untitled Project</div>
+            </div>
+            <div class="header-buttons">
+                <button id="openBtn">📂 Abrir</button>
+                <button id="saveBtn">💾 Guardar</button>
+                <button id="exportBtn">⬇️ Exportar</button>
+                <button id="prefsBtn">⚙️ Preferencias</button>
+            </div>
+        </div>
+
+        <!-- MAIN LAYOUT -->
+        <div class="main-layout">
+            <!-- CENTRAL PANEL -->
+            <div class="central-panel">
+                <div class="timeline-header">
+                    <span>Timeline</span>
+                </div>
+                <div class="timeline-display" id="timelineDisplay">
+                    <div class="waveform-placeholder">
+                        <p>🎵 Waveform aquí</p>
+                        <p style="font-size: 10px; color: var(--text-secondary);">
+                            Importa o graba audio para comenzar
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INSPECTOR PANEL -->
+            <div class="inspector-panel">
+                <!-- AUDIO INPUT -->
+                <div class="inspector-section">
+                    <div class="inspector-section-title">Entrada</div>
+                    <div class="param-group">
+                        <div class="param-label">
+                            <span>Micrófono</span>
+                            <span class="param-value" id="micStatus">●</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MASTER VOLUME -->
+                <div class="inspector-section">
+                    <div class="inspector-section-title">Master</div>
+                    <div class="param-group">
+                        <div class="param-label">
+                            <span>Volumen</span>
+                            <span class="param-value" id="masterVolValue">0.0 dB</span>
+                        </div>
+                        <input type="range" id="masterVolume" min="-60" max="12" value="0" step="0.1">
+                    </div>
+                    <div class="param-group">
+                        <div class="param-label">
+                            <span>Panorámica</span>
+                            <span class="param-value" id="masterPanValue">C</span>
+                        </div>
+                        <input type="range" id="masterPan" min="-1" max="1" value="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- EQ PLACEHOLDER -->
+                <div class="inspector-section">
+                    <div class="inspector-section-title">Ecualizador</div>
+                    <div class="param-group" style="color: var(--text-secondary); font-size: 10px;">
+                        [Fase 4]
+                    </div>
+                </div>
+
+                <!-- COMPRESOR PLACEHOLDER -->
+                <div class="inspector-section">
+                    <div class="inspector-section-title">Compresor</div>
+                    <div class="param-group" style="color: var(--text-secondary); font-size: 10px;">
+                        [Fase 4]
+                    </div>
+                </div>
+
+                <!-- EFFECTS PLACEHOLDER -->
+                <div class="inspector-section">
+                    <div class="inspector-section-title">Efectos</div>
+                    <div class="param-group" style="color: var(--text-secondary); font-size: 10px;">
+                        [Fase 4]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRANSPORT & METERS -->
+        <div class="transport-panel">
+            <div class="transport-controls">
+                <button id="playBtn">▶ Play</button>
+                <button id="pauseBtn">⏸ Pausa</button>
+                <button id="stopBtn">⏹ Stop</button>
+                <button id="recordBtn" class="danger">● Grabar</button>
+            </div>
+            <div class="time-display" id="timeDisplay">00:00.00 / 00:00.00</div>
+            <div class="meters-group">
+                <div class="meter">
+                    <div class="meter-label">Peak</div>
+                    <div class="meter-value" id="meterPeak">-∞</div>
+                    <div class="meter-bar">
+                        <div class="meter-bar-fill" id="meterPeakBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="meter">
+                    <div class="meter-label">RMS</div>
+                    <div class="meter-value" id="meterRMS">-∞</div>
+                    <div class="meter-bar">
+                        <div class="meter-bar-fill" id="meterRMSBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="status-bar">
+            <div class="status-message">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText">Listo</span>
+            </div>
+            <div>Stylo Audio Professional v0.1.0</div>
+        </div>
+    </div>
+
+    <!-- HIDDEN FILE INPUT -->
+    <input type="file" id="audioFileInput" accept="audio/wav,audio/mpeg,audio/*">
+
+    <script>
+        // ============================================
+        // STYLO AUDIO PROFESSIONAL - FASE 1
+        // AudioEngine + Modular Architecture
+        // ============================================
+
+        // ============================================
+        // 1. AUDIO ENGINE - Core
+        // ============================================
+        class AudioEngine {
+            constructor() {
+                this.audioContext = null;
+                this.masterGain = null;
+                this.masterPan = null;
+                this.analyser = null;
+                this.isInitialized = false;
+                this.currentAudioBuffer = null;
+                this.sourceNode = null;
+
+                this.init();
+            }
+
+            init() {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.audioContext = new AudioContext();
+
+                    // Master Bus
+                    this.masterGain = this.audioContext.createGain();
+                    this.masterGain.gain.value = 1.0;
+
+                    this.masterPan = this.audioContext.createStereoPanner();
+                    this.masterPan.pan.value = 0;
+
+                    // Analyser for metering
+                    this.analyser = this.audioContext.createAnalyser();
+                    this.analyser.fftSize = 2048;
+
+                    // Routing: All → Master Gain → Master Pan → Analyser → Speaker
+                    this.masterGain.connect(this.masterPan);
+                    this.masterPan.connect(this.analyser);
+                    this.analyser.connect(this.audioContext.destination);
+
+                    this.isInitialized = true;
+                    console.log('✓ AudioEngine inicializado');
+                    return true;
+                } catch (error) {
+                    console.error('✗ Error al inicializar AudioEngine:', error);
+                    return false;
+                }
+            }
+
+            createBufferSource(audioBuffer) {
+                if (this.sourceNode) {
+                    try {
+                        this.sourceNode.stop();
+                    } catch (e) {}
+                }
+
+                this.sourceNode = this.audioContext.createBufferSource();
+                this.sourceNode.buffer = audioBuffer;
+                this.sourceNode.connect(this.masterGain);
+                this.currentAudioBuffer = audioBuffer;
+
+                return this.sourceNode;
+            }
+
+            setMasterVolume(dbValue) {
+                // Convertir dB a ganancia lineal
+                const gain = Math.pow(10, dbValue / 20);
+                this.masterGain.gain.setValueAtTime(gain, this.audioContext.currentTime);
+            }
+
+            setMasterPan(panValue) {
+                // panValue: -1 (izquierda) a 1 (derecha)
+                this.masterPan.pan.setValueAtTime(panValue, this.audioContext.currentTime);
+            }
+
+            getAnalyserData() {
+                const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                this.analyser.getByteFrequencyData(dataArray);
+                return dataArray;
+            }
+
+            getTimeData() {
+                const dataArray = new Uint8Array(this.analyser.fftSize);
+                this.analyser.getByteTimeDomainData(dataArray);
+                return dataArray;
+            }
+
+            getCurrentTime() {
+                return this.audioContext.currentTime;
+            }
+
+            resume() {
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
+            }
+        }
+
+        // ============================================
+        // 2. AUDIO IMPORTER
+        // ============================================
+        class AudioImporter {
+            constructor(audioEngine) {
+                this.audioEngine = audioEngine;
+            }
+
+            async loadFile(file) {
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const audioBuffer = await this.audioEngine.audioContext.decodeAudioData(arrayBuffer);
+                    return audioBuffer;
+                } catch (error) {
+                    console.error('Error al decodificar audio:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // ============================================
+        // 3. AUDIO METER
+        // ============================================
+        class AudioMeter {
+            constructor(analyser) {
+                this.analyser = analyser;
+                this.peakValue = 0;
+                this.rmsValue = 0;
+                this.peakHold = 0;
+                this.peakHoldTime = 2000; // ms
+                this.lastPeakTime = 0;
+            }
+
+            update() {
+                const dataArray = new Uint8Array(this.analyser.fftSize);
+                this.analyser.getByteTimeDomainData(dataArray);
+
+                // Calcular peak
+                let maxValue = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    const normalized = (dataArray[i] - 128) / 128;
+                    const abs = Math.abs(normalized);
+                    if (abs > maxValue) maxValue = abs;
+                }
+
+                this.peakValue = maxValue;
+
+                // Peak hold
+                if (maxValue > this.peakHold) {
+                    this.peakHold = maxValue;
+                    this.lastPeakTime = Date.now();
+                } else if (Date.now() - this.lastPeakTime > this.peakHoldTime) {
+                    this.peakHold = 0;
+                }
+
+                // Calcular RMS
+                let sumSquares = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    const normalized = (dataArray[i] - 128) / 128;
+                    sumSquares += normalized * normalized;
+                }
+                this.rmsValue = Math.sqrt(sumSquares / dataArray.length);
+
+                return {
+                    peak: this.peakValue,
+                    rms: this.rmsValue,
+                    peakHold: this.peakHold
+                };
+            }
+
+            valueToDb(value) {
+                if (value <= 0) return -Infinity;
+                return 20 * Math.log10(value);
+            }
+
+            valueToPercent(value) {
+                return Math.min(100, Math.max(0, value * 100));
+            }
+        }
+
+        // ============================================
+        // 4. TIMELINE MANAGER
+        // ============================================
+        class Timeline {
+            constructor(audioEngine) {
+                this.audioEngine = audioEngine;
+                this.isPlaying = false;
+                this.currentTime = 0;
+                this.duration = 0;
+                this.sourceNode = null;
+                this.startTime = 0;
+            }
+
+            play(sourceNode) {
+                if (this.isPlaying) return;
+
+                this.audioEngine.resume();
+                this.sourceNode = sourceNode;
+                this.startTime = this.audioEngine.audioContext.currentTime - this.currentTime;
+                sourceNode.start(0, this.currentTime);
+                this.isPlaying = true;
+            }
+
+            pause() {
+                if (!this.isPlaying) return;
+                this.currentTime = this.audioEngine.audioContext.currentTime - this.startTime;
+                this.sourceNode.stop();
+                this.isPlaying = false;
+            }
+
+            stop() {
+                if (this.sourceNode && this.isPlaying) {
+                    this.sourceNode.stop();
+                }
+                this.currentTime = 0;
+                this.isPlaying = false;
+            }
+
+            setDuration(duration) {
+                this.duration = duration;
+            }
+
+            getCurrentTime() {
+                if (this.isPlaying) {
+                    this.currentTime = this.audioEngine.audioContext.currentTime - this.startTime;
+                }
+                return this.currentTime;
+            }
+
+            seek(time) {
+                this.currentTime = Math.min(time, this.duration);
+                if (this.isPlaying) {
+                    this.pause();
+                    this.play(this.audioEngine.createBufferSource(this.audioEngine.currentAudioBuffer));
+                }
+            }
+
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = (seconds % 60).toFixed(2);
+                return `${String(mins).padStart(2, '0')}:${String(secs).padStart(5, '0')}`;
+            }
+        }
+
+        // ============================================
+        // 5. UI CONTROLLER
+        // ============================================
+        class UIController {
+            constructor(audioEngine, importer, meter, timeline) {
+                this.audioEngine = audioEngine;
+                this.importer = importer;
+                this.meter = meter;
+                this.timeline = timeline;
+
+                this.setupEventListeners();
+                this.setupMetersUpdate();
+            }
+
+            setupEventListeners() {
+                // File input
+                document.getElementById('openBtn').addEventListener('click', () => {
+                    document.getElementById('audioFileInput').click();
+                });
+
+                document.getElementById('audioFileInput').addEventListener('change', (e) => {
+                    this.handleFileSelect(e);
+                });
+
+                // Transport controls
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    this.play();
+                });
+
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    this.pause();
+                });
+
+                document.getElementById('stopBtn').addEventListener('click', () => {
+                    this.stop();
+                });
+
+                // Master controls
+                document.getElementById('masterVolume').addEventListener('input', (e) => {
+                    const dbValue = parseFloat(e.target.value);
+                    this.audioEngine.setMasterVolume(dbValue);
+                    document.getElementById('masterVolValue').textContent = `${dbValue.toFixed(1)} dB`;
+                });
+
+                document.getElementById('masterPan').addEventListener('input', (e) => {
+                    const panValue = parseFloat(e.target.value);
+                    this.audioEngine.setMasterPan(panValue);
+                    const panDisplay = panValue === 0 ? 'C' : (panValue < 0 ? `L${Math.abs(panValue).toFixed(2)}` : `R${panValue.toFixed(2)}`);
+                    document.getElementById('masterPanValue').textContent = panDisplay;
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.target.tagName === 'INPUT') return;
+
+                    switch(e.code) {
+                        case 'Space':
+                            e.preventDefault();
+                            this.timeline.isPlaying ? this.pause() : this.play();
+                            break;
+                        case 'KeyR':
+                            e.preventDefault();
+                            this.setStatus('Grabación: No implementada en Fase 1', false);
+                            break;
+                        case 'KeyS':
+                            e.preventDefault();
+                            this.stop();
+                            break;
+                    }
+                });
+            }
+
+            async handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                this.setStatus(`Cargando ${file.name}...`, true);
+
+                try {
+                    const audioBuffer = await this.importer.loadFile(file);
+                    this.audioEngine.currentAudioBuffer = audioBuffer;
+                    this.timeline.setDuration(audioBuffer.duration);
+
+                    document.getElementById('projectName').textContent = file.name.replace(/\.[^/.]+$/, '');
+
+                    this.updateTimeDisplay();
+                    this.setStatus(`Archivo cargado: ${audioBuffer.duration.toFixed(2)}s`, false);
+                } catch (error) {
+                    this.setStatus(`Error: ${error.message}`, false);
+                    console.error(error);
+                }
+
+                event.target.value = '';
+            }
+
+            play() {
+                if (!this.audioEngine.currentAudioBuffer) {
+                    this.setStatus('No hay audio cargado', false);
+                    return;
+                }
+
+                if (this.timeline.isPlaying) return;
+
+                const sourceNode = this.audioEngine.createBufferSource(this.audioEngine.currentAudioBuffer);
+                this.timeline.play(sourceNode);
+                this.setStatus('Reproducción...', true);
+            }
+
+            pause() {
+                if (!this.timeline.isPlaying) return;
+                this.timeline.pause();
+                this.setStatus('Pausa', false);
+            }
+
+            stop() {
+                this.timeline.stop();
+                this.setStatus('Detenido', false);
+                this.updateTimeDisplay();
+            }
+
+            setupMetersUpdate() {
+                setInterval(() => {
+                    const meterData = this.meter.update();
+                    const peakDb = this.meter.valueToDb(meterData.peak);
+                    const rmsDb = this.meter.valueToDb(meterData.rms);
+
+                    document.getElementById('meterPeak').textContent = peakDb === -Infinity ? '-∞' : peakDb.toFixed(1) + ' dB';
+                    document.getElementById('meterRMS').textContent = rmsDb === -Infinity ? '-∞' : rmsDb.toFixed(1) + ' dB';
+
+                    const peakPercent = this.meter.valueToPercent(meterData.peakHold);
+                    const rmsPercent = this.meter.valueToPercent(meterData.rms);
+
+                    document.getElementById('meterPeakBar').style.width = peakPercent + '%';
+                    document.getElementById('meterRMSBar').style.width = rmsPercent + '%';
+
+                    this.updateTimeDisplay();
+                }, 50);
+            }
+
+            updateTimeDisplay() {
+                const current = this.timeline.getCurrentTime();
+                const duration = this.timeline.duration;
+                const display = `${this.timeline.formatTime(current)} / ${this.timeline.formatTime(duration)}`;
+                document.getElementById('timeDisplay').textContent = display;
+            }
+
+            setStatus(message, active) {
+                document.getElementById('statusText').textContent = message;
+                const indicator = document.getElementById('statusIndicator');
+                if (active) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            }
+        }
+
+        // ============================================
+        // 6. INITIALIZATION
+        // ============================================
+        window.addEventListener('load', () => {
+            // Instanciar módulos
+            const audioEngine = new AudioEngine();
+            const importer = new AudioImporter(audioEngine);
+            const meter = new AudioMeter(audioEngine.analyser);
+            const timeline = new Timeline(audioEngine);
+            const ui = new UIController(audioEngine, importer, meter, timeline);
+
+            // Log
+            console.log('%c Stylo Audio Professional v0.1.0 ', 'background: #00d9ff; color: #000; padding: 4px 8px; border-radius: 3px; font-weight: bold;');
+            console.log('Fase 1 - AudioEngine completada');
+            console.log('Ready para Fase 2 (Importación, Reproducción, Grabación)');
+        });
+    </script>
+</body>
+</html>
