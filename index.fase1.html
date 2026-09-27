@@ -22,7 +22,6 @@
             --danger: #ff3333;
             --success: #33ff33;
             --border: #404040;
-            --waveform-bg: #1a1a1a;
         }
 
         body {
@@ -103,17 +102,6 @@
             color: white;
         }
 
-        button.recording {
-            background: var(--danger);
-            color: white;
-            animation: recordingPulse 1s infinite;
-        }
-
-        @keyframes recordingPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
         /* MAIN LAYOUT */
         .main-layout {
             display: flex;
@@ -133,7 +121,6 @@
         .timeline-header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
             padding: 8px 16px;
             background: var(--bg-panel);
             border-bottom: 1px solid var(--border);
@@ -141,29 +128,32 @@
             color: var(--text-secondary);
         }
 
-        .waveform-container {
+        .timeline-display {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--waveform-bg);
+            background: var(--bg-dark);
+            border: 1px dashed var(--border);
+            margin: 16px;
+            border-radius: 4px;
+            min-height: 200px;
+            color: var(--text-secondary);
+            font-size: 12px;
             position: relative;
-            overflow: hidden;
-        }
-
-        canvas#waveformCanvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            cursor: crosshair;
         }
 
         .waveform-placeholder {
             text-align: center;
-            color: var(--text-secondary);
-            font-size: 12px;
-            position: absolute;
-            pointer-events: none;
+        }
+
+        .waveform-placeholder p {
+            margin-bottom: 12px;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
         }
 
         /* INSPECTOR PANEL */
@@ -242,36 +232,6 @@
             border: none;
         }
 
-        .recording-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 8px;
-            background: rgba(255, 51, 51, 0.1);
-            border: 1px solid var(--danger);
-            border-radius: 4px;
-            font-size: 10px;
-            color: var(--danger);
-        }
-
-        .recording-indicator.active {
-            background: rgba(255, 51, 51, 0.2);
-            animation: recordingBlink 1s infinite;
-        }
-
-        .rec-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--danger);
-            animation: recordingBlink 1s infinite;
-        }
-
-        @keyframes recordingBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
         /* TRANSPORT & METERS */
         .transport-panel {
             background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-panel) 100%);
@@ -336,6 +296,7 @@
             transition: width 0.05s;
         }
 
+        /* HIDDEN FILE INPUT */
         input[type="file"] {
             display: none;
         }
@@ -375,6 +336,7 @@
             50% { opacity: 0.5; }
         }
 
+        /* SCROLLBAR */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -392,6 +354,7 @@
             background: var(--accent-cyan);
         }
 
+        /* RESPONSIVE */
         @media (max-width: 1024px) {
             .inspector-panel {
                 width: 200px;
@@ -414,6 +377,7 @@
 </head>
 <body>
     <div class="container">
+        <!-- HEADER -->
         <div class="header">
             <div class="header-left">
                 <div class="logo">◆ STYLO</div>
@@ -427,42 +391,37 @@
             </div>
         </div>
 
+        <!-- MAIN LAYOUT -->
         <div class="main-layout">
+            <!-- CENTRAL PANEL -->
             <div class="central-panel">
                 <div class="timeline-header">
-                    <span>Timeline / Waveform</span>
-                    <span id="recordingStatus" style="display: none;">
-                        <div class="recording-indicator">
-                            <div class="rec-dot"></div>
-                            <span id="recordingTime">00:00</span>
-                        </div>
-                    </span>
+                    <span>Timeline</span>
                 </div>
-                <div class="waveform-container">
-                    <canvas id="waveformCanvas"></canvas>
-                    <div class="waveform-placeholder" id="waveformPlaceholder">
-                        <p>🎵 Importa audio o graba con el micrófono</p>
+                <div class="timeline-display" id="timelineDisplay">
+                    <div class="waveform-placeholder">
+                        <p>🎵 Waveform aquí</p>
+                        <p style="font-size: 10px; color: var(--text-secondary);">
+                            Importa o graba audio para comenzar
+                        </p>
                     </div>
                 </div>
             </div>
 
+            <!-- INSPECTOR PANEL -->
             <div class="inspector-panel">
+                <!-- AUDIO INPUT -->
                 <div class="inspector-section">
                     <div class="inspector-section-title">Entrada</div>
                     <div class="param-group">
                         <div class="param-label">
                             <span>Micrófono</span>
-                            <span class="param-value" id="micStatus">✓</span>
+                            <span class="param-value" id="micStatus">●</span>
                         </div>
-                    </div>
-                    <div class="param-group" style="font-size: 9px; color: var(--text-secondary);">
-                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                            <input type="checkbox" id="monitorInput" style="width: 14px; height: 14px;">
-                            Monitorizar entrada
-                        </label>
                     </div>
                 </div>
 
+                <!-- MASTER VOLUME -->
                 <div class="inspector-section">
                     <div class="inspector-section-title">Master</div>
                     <div class="param-group">
@@ -474,21 +433,14 @@
                     </div>
                     <div class="param-group">
                         <div class="param-label">
-                            <span>Pan</span>
+                            <span>Panorámica</span>
                             <span class="param-value" id="masterPanValue">C</span>
                         </div>
                         <input type="range" id="masterPan" min="-1" max="1" value="0" step="0.01">
                     </div>
                 </div>
 
-                <div class="inspector-section">
-                    <div class="inspector-section-title">Grabación</div>
-                    <div class="param-group" style="font-size: 9px; color: var(--text-secondary);">
-                        <p>Bitrate: 48000 Hz</p>
-                        <p>Canales: Estéreo</p>
-                    </div>
-                </div>
-
+                <!-- EQ PLACEHOLDER -->
                 <div class="inspector-section">
                     <div class="inspector-section-title">Ecualizador</div>
                     <div class="param-group" style="color: var(--text-secondary); font-size: 10px;">
@@ -496,6 +448,15 @@
                     </div>
                 </div>
 
+                <!-- COMPRESOR PLACEHOLDER -->
+                <div class="inspector-section">
+                    <div class="inspector-section-title">Compresor</div>
+                    <div class="param-group" style="color: var(--text-secondary); font-size: 10px;">
+                        [Fase 4]
+                    </div>
+                </div>
+
+                <!-- EFFECTS PLACEHOLDER -->
                 <div class="inspector-section">
                     <div class="inspector-section-title">Efectos</div>
                     <div class="param-group" style="color: var(--text-secondary); font-size: 10px;">
@@ -505,13 +466,13 @@
             </div>
         </div>
 
+        <!-- TRANSPORT & METERS -->
         <div class="transport-panel">
             <div class="transport-controls">
                 <button id="playBtn">▶ Play</button>
                 <button id="pauseBtn">⏸ Pausa</button>
                 <button id="stopBtn">⏹ Stop</button>
                 <button id="recordBtn" class="danger">● Grabar</button>
-                <button id="clearBtn">🗑️ Limpiar</button>
             </div>
             <div class="time-display" id="timeDisplay">00:00.00 / 00:00.00</div>
             <div class="meters-group">
@@ -532,23 +493,28 @@
             </div>
         </div>
 
+        <!-- STATUS BAR -->
         <div class="status-bar">
             <div class="status-message">
                 <span class="status-indicator" id="statusIndicator"></span>
                 <span id="statusText">Listo</span>
             </div>
-            <div>Stylo Audio Professional v0.2.0 (FASE 2)</div>
+            <div>Stylo Audio Professional v0.1.0</div>
         </div>
     </div>
 
+    <!-- HIDDEN FILE INPUT -->
     <input type="file" id="audioFileInput" accept="audio/wav,audio/mpeg,audio/*">
 
     <script>
         // ============================================
-        // STYLO AUDIO PROFESSIONAL - FASE 2
-        // AudioRecorder + WaveformRenderer
+        // STYLO AUDIO PROFESSIONAL - FASE 1
+        // AudioEngine + Modular Architecture
         // ============================================
 
+        // ============================================
+        // 1. AUDIO ENGINE - Core
+        // ============================================
         class AudioEngine {
             constructor() {
                 this.audioContext = null;
@@ -558,7 +524,6 @@
                 this.isInitialized = false;
                 this.currentAudioBuffer = null;
                 this.sourceNode = null;
-                this.scriptProcessor = null;
 
                 this.init();
             }
@@ -568,24 +533,27 @@
                     const AudioContext = window.AudioContext || window.webkitAudioContext;
                     this.audioContext = new AudioContext();
 
+                    // Master Bus
                     this.masterGain = this.audioContext.createGain();
                     this.masterGain.gain.value = 1.0;
 
                     this.masterPan = this.audioContext.createStereoPanner();
                     this.masterPan.pan.value = 0;
 
+                    // Analyser for metering
                     this.analyser = this.audioContext.createAnalyser();
                     this.analyser.fftSize = 2048;
 
+                    // Routing: All → Master Gain → Master Pan → Analyser → Speaker
                     this.masterGain.connect(this.masterPan);
                     this.masterPan.connect(this.analyser);
                     this.analyser.connect(this.audioContext.destination);
 
                     this.isInitialized = true;
-                    console.log('✓ AudioEngine v0.2.0 inicializado');
+                    console.log('✓ AudioEngine inicializado');
                     return true;
                 } catch (error) {
-                    console.error('✗ Error:', error);
+                    console.error('✗ Error al inicializar AudioEngine:', error);
                     return false;
                 }
             }
@@ -606,11 +574,13 @@
             }
 
             setMasterVolume(dbValue) {
+                // Convertir dB a ganancia lineal
                 const gain = Math.pow(10, dbValue / 20);
                 this.masterGain.gain.setValueAtTime(gain, this.audioContext.currentTime);
             }
 
             setMasterPan(panValue) {
+                // panValue: -1 (izquierda) a 1 (derecha)
                 this.masterPan.pan.setValueAtTime(panValue, this.audioContext.currentTime);
             }
 
@@ -635,177 +605,11 @@
                     this.audioContext.resume();
                 }
             }
-
-            getSampleRate() {
-                return this.audioContext.sampleRate;
-            }
         }
 
-        class AudioRecorder {
-            constructor(audioEngine) {
-                this.audioEngine = audioEngine;
-                this.mediaRecorder = null;
-                this.mediaStream = null;
-                this.audioChunks = [];
-                this.isRecording = false;
-                this.recordingStartTime = 0;
-                this.recordedAudioBuffer = null;
-                this.monitorGain = null;
-                this.monitorNode = null;
-                this.sourceNode = null;
-            }
-
-            async start() {
-                try {
-                    this.audioChunks = [];
-
-                    this.mediaStream = await navigator.mediaDevices.getUserMedia({
-                        audio: {
-                            echoCancellation: true,
-                            noiseSuppression: true,
-                            autoGainControl: false,
-                            sampleRate: 48000
-                        }
-                    });
-
-                    this.sourceNode = this.audioEngine.audioContext.createMediaStreamAudioSource(this.mediaStream);
-
-                    this.monitorGain = this.audioEngine.audioContext.createGain();
-                    this.monitorGain.gain.value = 0.3;
-
-                    this.sourceNode.connect(this.monitorGain);
-                    this.monitorGain.connect(this.audioEngine.masterGain);
-
-                    this.mediaRecorder = new MediaRecorder(this.mediaStream, {
-                        mimeType: 'audio/webm;codecs=opus'
-                    });
-
-                    this.mediaRecorder.ondataavailable = (event) => {
-                        this.audioChunks.push(event.data);
-                    };
-
-                    this.mediaRecorder.onstop = async () => {
-                        const blob = new Blob(this.audioChunks, { type: 'audio/webm;codecs=opus' });
-                        const arrayBuffer = await blob.arrayBuffer();
-                        this.recordedAudioBuffer = await this.audioEngine.audioContext.decodeAudioData(arrayBuffer);
-                    };
-
-                    this.mediaRecorder.start();
-                    this.isRecording = true;
-                    this.recordingStartTime = Date.now();
-
-                    return true;
-                } catch (error) {
-                    console.error('Error de grabación:', error);
-                    throw error;
-                }
-            }
-
-            stop() {
-                if (!this.isRecording) return;
-
-                this.mediaRecorder.stop();
-                this.mediaStream.getTracks().forEach(track => track.stop());
-                this.isRecording = false;
-
-                return this.recordedAudioBuffer;
-            }
-
-            getRecordedBuffer() {
-                return this.recordedAudioBuffer;
-            }
-
-            getRecordingTime() {
-                if (!this.isRecording) return 0;
-                return (Date.now() - this.recordingStartTime) / 1000;
-            }
-
-            setMonitor(enabled) {
-                if (!this.monitorGain) return;
-                this.monitorGain.gain.value = enabled ? 0.3 : 0;
-            }
-        }
-
-        class WaveformRenderer {
-            constructor(canvasElement, audioEngine) {
-                this.canvas = canvasElement;
-                this.ctx = canvasElement.getContext('2d');
-                this.audioEngine = audioEngine;
-                this.audioBuffer = null;
-                this.playheadPosition = 0;
-                this.isPlaying = false;
-
-                window.addEventListener('resize', () => this.resizeCanvas());
-                this.resizeCanvas();
-            }
-
-            resizeCanvas() {
-                const rect = this.canvas.getBoundingClientRect();
-                this.canvas.width = rect.width;
-                this.canvas.height = rect.height;
-                if (this.audioBuffer) {
-                    this.drawWaveform();
-                }
-            }
-
-            setAudioBuffer(audioBuffer) {
-                this.audioBuffer = audioBuffer;
-                this.playheadPosition = 0;
-                this.drawWaveform();
-            }
-
-            drawWaveform() {
-                const { ctx, canvas, audioBuffer } = this;
-                ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                if (!audioBuffer) return;
-
-                const width = canvas.width;
-                const height = canvas.height;
-                const data = audioBuffer.getChannelData(0);
-                const step = Math.ceil(data.length / width);
-                const amp = height / 2;
-
-                ctx.strokeStyle = '#00d9ff';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(0, amp);
-
-                for (let i = 0; i < width; i++) {
-                    let min = 1.0;
-                    let max = -1.0;
-                    for (let j = 0; j < step; j++) {
-                        const datum = data[i * step + j];
-                        if (datum < min) min = datum;
-                        if (datum > max) max = datum;
-                    }
-                    ctx.lineTo(i, amp - max * amp);
-                }
-                ctx.stroke();
-
-                // Playhead
-                const playheadX = (this.playheadPosition / audioBuffer.duration) * width;
-                ctx.strokeStyle = '#ff3333';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(playheadX, 0);
-                ctx.lineTo(playheadX, height);
-                ctx.stroke();
-            }
-
-            setPlayheadPosition(time, duration) {
-                this.playheadPosition = time;
-                if (this.audioBuffer) {
-                    this.drawWaveform();
-                }
-            }
-
-            setIsPlaying(isPlaying) {
-                this.isPlaying = isPlaying;
-            }
-        }
-
+        // ============================================
+        // 2. AUDIO IMPORTER
+        // ============================================
         class AudioImporter {
             constructor(audioEngine) {
                 this.audioEngine = audioEngine;
@@ -817,19 +621,22 @@
                     const audioBuffer = await this.audioEngine.audioContext.decodeAudioData(arrayBuffer);
                     return audioBuffer;
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('Error al decodificar audio:', error);
                     throw error;
                 }
             }
         }
 
+        // ============================================
+        // 3. AUDIO METER
+        // ============================================
         class AudioMeter {
             constructor(analyser) {
                 this.analyser = analyser;
                 this.peakValue = 0;
                 this.rmsValue = 0;
                 this.peakHold = 0;
-                this.peakHoldTime = 2000;
+                this.peakHoldTime = 2000; // ms
                 this.lastPeakTime = 0;
             }
 
@@ -837,6 +644,7 @@
                 const dataArray = new Uint8Array(this.analyser.fftSize);
                 this.analyser.getByteTimeDomainData(dataArray);
 
+                // Calcular peak
                 let maxValue = 0;
                 for (let i = 0; i < dataArray.length; i++) {
                     const normalized = (dataArray[i] - 128) / 128;
@@ -846,6 +654,7 @@
 
                 this.peakValue = maxValue;
 
+                // Peak hold
                 if (maxValue > this.peakHold) {
                     this.peakHold = maxValue;
                     this.lastPeakTime = Date.now();
@@ -853,6 +662,7 @@
                     this.peakHold = 0;
                 }
 
+                // Calcular RMS
                 let sumSquares = 0;
                 for (let i = 0; i < dataArray.length; i++) {
                     const normalized = (dataArray[i] - 128) / 128;
@@ -877,6 +687,9 @@
             }
         }
 
+        // ============================================
+        // 4. TIMELINE MANAGER
+        // ============================================
         class Timeline {
             constructor(audioEngine) {
                 this.audioEngine = audioEngine;
@@ -938,22 +751,22 @@
             }
         }
 
+        // ============================================
+        // 5. UI CONTROLLER
+        // ============================================
         class UIController {
-            constructor(audioEngine, importer, recorder, meter, timeline, waveformRenderer) {
+            constructor(audioEngine, importer, meter, timeline) {
                 this.audioEngine = audioEngine;
                 this.importer = importer;
-                this.recorder = recorder;
                 this.meter = meter;
                 this.timeline = timeline;
-                this.waveformRenderer = waveformRenderer;
-                this.recordingInterval = null;
 
                 this.setupEventListeners();
                 this.setupMetersUpdate();
             }
 
             setupEventListeners() {
-                // File
+                // File input
                 document.getElementById('openBtn').addEventListener('click', () => {
                     document.getElementById('audioFileInput').click();
                 });
@@ -962,14 +775,20 @@
                     this.handleFileSelect(e);
                 });
 
-                // Transport
-                document.getElementById('playBtn').addEventListener('click', () => this.play());
-                document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
-                document.getElementById('stopBtn').addEventListener('click', () => this.stop());
-                document.getElementById('recordBtn').addEventListener('click', () => this.toggleRecord());
-                document.getElementById('clearBtn').addEventListener('click', () => this.clear());
+                // Transport controls
+                document.getElementById('playBtn').addEventListener('click', () => {
+                    this.play();
+                });
 
-                // Master
+                document.getElementById('pauseBtn').addEventListener('click', () => {
+                    this.pause();
+                });
+
+                document.getElementById('stopBtn').addEventListener('click', () => {
+                    this.stop();
+                });
+
+                // Master controls
                 document.getElementById('masterVolume').addEventListener('input', (e) => {
                     const dbValue = parseFloat(e.target.value);
                     this.audioEngine.setMasterVolume(dbValue);
@@ -983,12 +802,7 @@
                     document.getElementById('masterPanValue').textContent = panDisplay;
                 });
 
-                // Monitor
-                document.getElementById('monitorInput').addEventListener('change', (e) => {
-                    this.recorder.setMonitor(e.target.checked);
-                });
-
-                // Keyboard
+                // Keyboard shortcuts
                 document.addEventListener('keydown', (e) => {
                     if (e.target.tagName === 'INPUT') return;
 
@@ -999,23 +813,13 @@
                             break;
                         case 'KeyR':
                             e.preventDefault();
-                            this.toggleRecord();
+                            this.setStatus('Grabación: No implementada en Fase 1', false);
                             break;
                         case 'KeyS':
                             e.preventDefault();
                             this.stop();
                             break;
                     }
-                });
-
-                // Waveform click
-                document.getElementById('waveformCanvas').addEventListener('click', (e) => {
-                    if (!this.audioEngine.currentAudioBuffer) return;
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const percent = x / rect.width;
-                    const seekTime = percent * this.timeline.duration;
-                    this.timeline.seek(seekTime);
                 });
             }
 
@@ -1029,68 +833,22 @@
                     const audioBuffer = await this.importer.loadFile(file);
                     this.audioEngine.currentAudioBuffer = audioBuffer;
                     this.timeline.setDuration(audioBuffer.duration);
-                    this.waveformRenderer.setAudioBuffer(audioBuffer);
 
                     document.getElementById('projectName').textContent = file.name.replace(/\.[^/.]+$/, '');
-                    document.getElementById('waveformPlaceholder').style.display = 'none';
 
                     this.updateTimeDisplay();
-                    this.setStatus(`✓ ${audioBuffer.duration.toFixed(2)}s cargados`, false);
+                    this.setStatus(`Archivo cargado: ${audioBuffer.duration.toFixed(2)}s`, false);
                 } catch (error) {
-                    this.setStatus(`✗ Error: ${error.message}`, false);
+                    this.setStatus(`Error: ${error.message}`, false);
                     console.error(error);
                 }
 
                 event.target.value = '';
             }
 
-            async toggleRecord() {
-                if (this.recorder.isRecording) {
-                    this.stopRecord();
-                } else {
-                    this.startRecord();
-                }
-            }
-
-            async startRecord() {
-                try {
-                    await this.recorder.start();
-                    document.getElementById('recordBtn').classList.add('recording');
-                    document.getElementById('recordingStatus').style.display = 'block';
-                    this.setStatus('Grabando...', true);
-
-                    this.recordingInterval = setInterval(() => {
-                        const time = this.recorder.getRecordingTime();
-                        const mins = Math.floor(time / 60);
-                        const secs = (time % 60).toFixed(0).padStart(2, '0');
-                        document.getElementById('recordingTime').textContent = `${mins}:${secs}`;
-                    }, 100);
-                } catch (error) {
-                    this.setStatus(`✗ Permiso de micrófono denegado`, false);
-                    console.error(error);
-                }
-            }
-
-            stopRecord() {
-                this.recorder.stop();
-                clearInterval(this.recordingInterval);
-                document.getElementById('recordBtn').classList.remove('recording');
-                document.getElementById('recordingStatus').style.display = 'none';
-
-                const audioBuffer = this.recorder.getRecordedBuffer();
-                if (audioBuffer) {
-                    this.audioEngine.currentAudioBuffer = audioBuffer;
-                    this.timeline.setDuration(audioBuffer.duration);
-                    this.waveformRenderer.setAudioBuffer(audioBuffer);
-                    document.getElementById('projectName').textContent = 'Grabación';
-                    document.getElementById('waveformPlaceholder').style.display = 'none';
-                    this.setStatus(`✓ Grabación guardada (${audioBuffer.duration.toFixed(2)}s)`, false);
-                }
-            }
-
             play() {
                 if (!this.audioEngine.currentAudioBuffer) {
-                    this.setStatus('Sin audio cargado', false);
+                    this.setStatus('No hay audio cargado', false);
                     return;
                 }
 
@@ -1098,37 +856,19 @@
 
                 const sourceNode = this.audioEngine.createBufferSource(this.audioEngine.currentAudioBuffer);
                 this.timeline.play(sourceNode);
-                this.waveformRenderer.setIsPlaying(true);
                 this.setStatus('Reproducción...', true);
             }
 
             pause() {
                 if (!this.timeline.isPlaying) return;
                 this.timeline.pause();
-                this.waveformRenderer.setIsPlaying(false);
                 this.setStatus('Pausa', false);
             }
 
             stop() {
                 this.timeline.stop();
-                this.waveformRenderer.setIsPlaying(false);
                 this.setStatus('Detenido', false);
                 this.updateTimeDisplay();
-            }
-
-            clear() {
-                if (confirm('¿Limpiar todo?')) {
-                    this.audioEngine.currentAudioBuffer = null;
-                    this.timeline.duration = 0;
-                    this.timeline.currentTime = 0;
-                    this.waveformRenderer.audioBuffer = null;
-                    document.getElementById('projectName').textContent = 'Untitled Project';
-                    document.getElementById('waveformPlaceholder').style.display = 'block';
-                    this.waveformRenderer.ctx.fillStyle = '#1a1a1a';
-                    this.waveformRenderer.ctx.fillRect(0, 0, this.waveformRenderer.canvas.width, this.waveformRenderer.canvas.height);
-                    this.setStatus('Proyecto limpio', false);
-                    this.updateTimeDisplay();
-                }
             }
 
             setupMetersUpdate() {
@@ -1147,7 +887,6 @@
                     document.getElementById('meterRMSBar').style.width = rmsPercent + '%';
 
                     this.updateTimeDisplay();
-                    this.updateWaveformPlayhead();
                 }, 50);
             }
 
@@ -1156,13 +895,6 @@
                 const duration = this.timeline.duration;
                 const display = `${this.timeline.formatTime(current)} / ${this.timeline.formatTime(duration)}`;
                 document.getElementById('timeDisplay').textContent = display;
-            }
-
-            updateWaveformPlayhead() {
-                if (this.timeline.isPlaying && this.audioEngine.currentAudioBuffer) {
-                    const current = this.timeline.getCurrentTime();
-                    this.waveformRenderer.setPlayheadPosition(current, this.timeline.duration);
-                }
             }
 
             setStatus(message, active) {
@@ -1176,17 +908,21 @@
             }
         }
 
+        // ============================================
+        // 6. INITIALIZATION
+        // ============================================
         window.addEventListener('load', () => {
+            // Instanciar módulos
             const audioEngine = new AudioEngine();
             const importer = new AudioImporter(audioEngine);
-            const recorder = new AudioRecorder(audioEngine);
             const meter = new AudioMeter(audioEngine.analyser);
             const timeline = new Timeline(audioEngine);
-            const waveformRenderer = new WaveformRenderer(document.getElementById('waveformCanvas'), audioEngine);
-            const ui = new UIController(audioEngine, importer, recorder, meter, timeline, waveformRenderer);
+            const ui = new UIController(audioEngine, importer, meter, timeline);
 
-            console.log('%c Stylo Audio Professional v0.2.0 ', 'background: #00d9ff; color: #000; padding: 4px 8px; border-radius: 3px; font-weight: bold;');
-            console.log('✓ FASE 2: Grabación + Waveform completa');
+            // Log
+            console.log('%c Stylo Audio Professional v0.1.0 ', 'background: #00d9ff; color: #000; padding: 4px 8px; border-radius: 3px; font-weight: bold;');
+            console.log('Fase 1 - AudioEngine completada');
+            console.log('Ready para Fase 2 (Importación, Reproducción, Grabación)');
         });
     </script>
 </body>

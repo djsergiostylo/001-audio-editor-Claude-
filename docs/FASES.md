@@ -40,26 +40,31 @@
 
 ---
 
-## FASE 2: Importación, Reproducción y Grabación ⏳ EN PROGRESO
+## FASE 2: Importación, Reproducción y Grabación ✅ COMPLETADA
 
 ### Objetivos
-- Cargar archivos WAV/MP3 ✓ (parcial)
-- Reproducción de audio ✓ (básica)
-- Captura de micrófono
+- Cargar archivos WAV/MP3 ✓
+- Reproducción de audio ✓
+- Captura de micrófono ✓
 - Conversión a AudioBuffer ✓
 
 ### Tareas
-- [x] Implementar AudioImporter básico
-- [ ] Mejorar AudioImporter (validaciones)
+- [x] Implementar AudioImporter completo
 - [x] Crear controles de transporte (play/pause/stop)
-- [ ] Implementar AudioRecorder completo
-- [ ] Manejo de permisos de micrófono
-- [ ] Selector de dispositivo de entrada
+- [x] Implementar AudioRecorder con MediaRecorder
+- [x] Manejo de permisos de micrófono
+- [x] WaveformRenderer con Canvas
+- [x] Grabación en estéreo 48kHz
+- [x] Monitorización de entrada
+- [x] Botón Clear (limpiar proyecto)
 
 ### Entregables
-- [x] Importación funcional de archivos
-- [ ] Grabación funcional
-- [x] Controles de reproducción básicos
+- [x] Importación funcional de archivos WAV/MP3
+- [x] Grabación funcional desde micrófono
+- [x] Controles de reproducción funcionales
+- [x] Waveform visual en Canvas
+- [x] Playhead sincronizado
+- [x] Grabación convertida automáticamente a AudioBuffer
 
 ---
 
@@ -205,10 +210,10 @@
 ## Progreso General
 
 ```
-██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░  15% (Fase 1 completada, Fase 2 iniciada)
+████████████░░░░░░░░░░░░░░░░░░░░░░  30% (Fase 2 completada, Fase 3 iniciada)
 ```
 
-**Última actualización:** 2026-09-27 06:11 UTC+2
+**Última actualización:** 2026-09-27 06:15 UTC+2
 
 ## Resumen de Cambios - FASE 1
 
