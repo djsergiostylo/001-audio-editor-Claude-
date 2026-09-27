@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor de Audio</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Editor de Audio</h1>
+    <span id="file-name" class="file-name">Sin archivo</span>
+  </header>
+
+  <nav class="toolbar" aria-label="Herramientas">
+    <div class="group">
+      <label class="btn" title="Abrir archivo de audio (Ctrl+O)">
+        Abrir
+        <input id="file-input" type="file" accept="audio/*" hidden>
+      </label>
+      <button id="btn-record" class="btn" title="Grabar desde el micrófono (R)">● Grabar</button>
+      <button id="btn-export" class="btn" data-needs-audio title="Exportar a WAV (Ctrl+S)">Exportar WAV</button>
+    </div>
+
+    <div class="group">
+      <button id="btn-play" class="btn" data-needs-audio title="Reproducir / Pausa (Espacio)">▶ Reproducir</button>
+      <button id="btn-stop" class="btn" data-needs-audio title="Detener">■ Detener</button>
+      <label class="check" title="Repetir la selección">
+        <input id="chk-loop" type="checkbox"> Bucle
+      </label>
+    </div>
+
+    <div class="group">
+      <button id="btn-undo" class="btn" title="Deshacer (Ctrl+Z)">↶ Deshacer</button>
+      <button id="btn-redo" class="btn" title="Rehacer (Ctrl+Y)">↷ Rehacer</button>
+    </div>
+
+    <div class="group">
+      <button id="btn-cut" class="btn" data-needs-selection title="Cortar (Ctrl+X)">Cortar</button>
+      <button id="btn-copy" class="btn" data-needs-selection title="Copiar (Ctrl+C)">Copiar</button>
+      <button id="btn-paste" class="btn" data-needs-clip title="Pegar en el cursor (Ctrl+V)">Pegar</button>
+      <button id="btn-delete" class="btn" data-needs-selection title="Eliminar (Supr)">Eliminar</button>
+      <button id="btn-trim" class="btn" data-needs-selection title="Conservar solo la selección (T)">Recortar</button>
+      <button id="btn-silence" class="btn" data-needs-selection title="Silenciar selección">Silenciar</button>
+    </div>
+
+    <div class="group">
+      <button id="btn-fadein" class="btn" data-needs-audio title="Fundido de entrada">Fade in</button>
+      <button id="btn-fadeout" class="btn" data-needs-audio title="Fundido de salida">Fade out</button>
+      <button id="btn-normalize" class="btn" data-needs-audio title="Normalizar a 0 dB">Normalizar</button>
+      <button id="btn-reverse" class="btn" data-needs-audio title="Invertir">Invertir</button>
+      <span class="gain">
+        <input id="gain-db" type="number" value="3" step="0.5" aria-label="Ganancia en dB">
+        <span>dB</span>
+        <button id="btn-gain" class="btn" data-needs-audio title="Aplicar ganancia">Ganancia</button>
+      </span>
+    </div>
+
+    <div class="group">
+      <button id="btn-zoom-in" class="btn" data-needs-audio title="Acercar (+)">＋</button>
+      <button id="btn-zoom-out" class="btn" data-needs-audio title="Alejar (−)">－</button>
+      <button id="btn-zoom-fit" class="btn" data-needs-audio title="Ajustar a la ventana (0)">Ajustar</button>
+      <button id="btn-zoom-sel" class="btn" data-needs-selection title="Zoom a la selección">Zoom sel.</button>
+    </div>
+  </nav>
+
+  <main>
+    <div id="wave-wrap" class="wave-wrap">
+      <canvas id="wave" class="wave"></canvas>
+      <div id="drop-hint" class="drop-hint">
+        <p>Arrastra un archivo de audio aquí, pulsa <strong>Abrir</strong> o <strong>Grabar</strong></p>
+      </div>
+    </div>
+    <div id="hscroll" class="hscroll" aria-label="Desplazamiento horizontal">
+      <div id="spacer" class="spacer"></div>
+    </div>
+  </main>
+
+  <footer class="status">
+    <span>Posición: <b id="st-pos">00:00.000</b></span>
+    <span>Selección: <b id="st-sel">—</b></span>
+    <span>Duración: <b id="st-dur">—</b></span>
+    <span>Formato: <b id="st-fmt">—</b></span>
+    <span id="st-msg" class="msg" role="status"></span>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
